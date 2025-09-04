@@ -1,95 +1,97 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import "./page.css"
+import Header from "@/components/Header/Header";
+import { Container, Space, SimpleGrid } from "@mantine/core";
+import JobFilter from "@/components/JobFilter/JobFilter";
+import JobCard from "@/components/JobCard/JobCard";
+import { useEffect, useState } from "react";
+
+import axios from "axios";
+
+export interface JobData {
+  jobTitle: string;
+  companyName: string;
+  companyLogoUrl: string;
+  location: string;
+  jobType: string;
+  salaryMin: number;
+  salaryMax: number;
+  deadline: Date | null;
+  jobDescription: string;
+  responsibilities: string;
+  requirements: string;
+  createdAt: string;
+  id: number;
+}
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [jobs, setJobs] = useState<JobData[] | null>(null)
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+  function timeAgo(dateString: string) {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const intervals: { [key: string]: number } = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60,
+      second: 1,
+    };
+
+    for (const unit in intervals) {
+      const interval = Math.floor(seconds / intervals[unit]);
+      if (interval >= 1) {
+        return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+      }
+    }
+
+    return 'Just now';
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const url = process.env.NEXT_PUBLIC_BACKEND_URL + "jobs"
+        const response = await axios.get<JobData[]>(url);
+        console.log(response.data)
+        setJobs(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <Container fluid>
+      <Header />
+
+      <Space h="md" />
+
+      <JobFilter />
+
+      <Space h="md" />
+
+      <SimpleGrid cols={4}>
+        {jobs !== null && jobs.map((job) => (
+          <JobCard
+            key={job.id}
+            companyLogo={job.companyLogoUrl}
+            jobTitle={job.companyName}
+            experience={job.requirements}
+            type={job.jobType}
+            description={job.jobDescription}
+            postedAgo={timeAgo(job.createdAt)}
+            salary={`${job.salaryMin}-${job.salaryMax} LPA`}
           />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        ))}
+      </SimpleGrid>
+
+    </Container>
   );
 }
