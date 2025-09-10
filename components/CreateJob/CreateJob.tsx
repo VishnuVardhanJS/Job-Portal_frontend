@@ -65,7 +65,7 @@ export default function CreateJobModal() {
                 radius="xl"
                 size="md"
                 variant="gradient"
-                gradient={{ from: "violet", to: "indigo" }}
+                style={{ "background": "linear-gradient(180deg, #A128FF 0%, #6100AD 113.79%)" }}
                 onClick={() => setOpened(true)}>Create Job</Button>
 
             <Modal

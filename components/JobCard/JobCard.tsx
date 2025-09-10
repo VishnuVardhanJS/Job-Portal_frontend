@@ -25,7 +25,7 @@ export default function JobCard({
         <Card shadow="sm" padding="lg" radius="md" withBorder style={{ maxWidth: 350, minHeight: 200 }}>
 
             <Group gap="xs" mb="lg" justify="space-between">
-                <Group style={{ "box-shadow": "-7px -7px 16px 0 #FFFFFF, 7px 7px 10px -4px rgba(116,150,179,0.27)" }}>
+                <Group style={{ "boxShadow": "-7px -7px 16px 0 #FFFFFF, 7px 7px 10px -4px rgba(116,150,179,0.27)" }}>
                     <Image src={companyLogo} alt={jobTitle} width={70} height={70} radius="xl" fit='contain' />
                 </Group>
                 <Group>

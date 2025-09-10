@@ -4,8 +4,7 @@ import Header from "@/components/Header/Header";
 import { Container, Space, SimpleGrid } from "@mantine/core";
 import JobFilter from "@/components/JobFilter/JobFilter";
 import JobCard from "@/components/JobCard/JobCard";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 
 export interface JobData {
@@ -26,6 +25,40 @@ export interface JobData {
 
 export default function Home() {
   const [jobs, setJobs] = useState<JobData[] | null>(null)
+  const [filterJobs, setFilterJobs] = useState<JobData[] | null>(null)
+
+  const [filters, setFilters] = useState({
+    search: "",
+    location: "",
+    jobType: "",
+    salary: [1, 99] as [number, number],
+  });
+
+  const filteredJobs = useMemo(() => {
+    if (jobs === null) {
+      return null
+    }
+    return jobs.filter((job) => {
+      const matchesSearch = filters.search ? job.companyName.toLowerCase().includes(filters.search.toLowerCase()) : true;
+
+      const matchesLocation = filters.location
+        ? job.location.toLowerCase().includes(filters.location.toLowerCase())
+        : true;
+
+      const matchesJobType = filters.jobType
+        ? job.jobType === filters.jobType
+        : true;
+
+      const matchesSalary = job.salaryMin >= filters.salary[0] && job.salaryMax <= filters.salary[1]
+
+      return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
+    });
+  }, [filters, jobs]);
+
+
+  useMemo(() => {
+    setFilterJobs(filteredJobs);
+  }, [filteredJobs]);
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -57,7 +90,6 @@ export default function Home() {
       try {
         const url = process.env.NEXT_PUBLIC_BACKEND_URL + "jobs"
         const response = await axios.get<JobData[]>(url);
-        console.log(response.data)
         setJobs(response.data);
       } catch (error) {
         console.error(error);
@@ -65,6 +97,7 @@ export default function Home() {
     };
 
     fetchData();
+
   }, []);
 
   return (
@@ -73,14 +106,14 @@ export default function Home() {
 
       <Space h="md" />
 
-      <JobFilter />
+      <JobFilter filters={filters} setFilters={setFilters} />
 
       <Space h="md" />
 
       <SimpleGrid cols={4}>
-        {jobs !== null && jobs.map((job) => (
+        {filterJobs !== null && filterJobs.map((job) => (
           <JobCard
-            key={job.id}
+            key={job.id + 10}
             companyLogo={job.companyLogoUrl}
             jobTitle={job.companyName}
             experience={job.requirements}

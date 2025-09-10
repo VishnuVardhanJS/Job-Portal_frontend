@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Group, Button, rem, Image } from "@mantine/core";
+import { Container, Group, rem, Image } from "@mantine/core";
 import Link from "next/link";
 
 import CreateJobModal from "../CreateJob/CreateJob";
@@ -32,7 +32,7 @@ export default function Header() {
         <Group gap="xl">
           {navItems.map((item) => (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
               style={{
                 textDecoration: "none",

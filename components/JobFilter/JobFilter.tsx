@@ -4,14 +4,19 @@ import { Group, TextInput, Select, RangeSlider, Text, rem, Container, Flex, Divi
 import { IconSearch, IconMapPin, IconBriefcase2 } from "@tabler/icons-react";
 import { useState } from "react";
 
-export default function JobFilter() {
-    const [salary, setSalary] = useState<[number, number]>([50, 80]);
+export type JobFilterIF = {
+    search: string;
+    location: string;
+    jobType: string;
+    salary: [number, number];
+};
 
+export default function JobFilter({ filters, setFilters }: { filters: JobFilterIF; setFilters: React.Dispatch<React.SetStateAction<JobFilterIF>>; }) {
     return (
         <Container
             fluid
             style={{
-                width: "100%", 
+                width: "100%",
                 backgroundColor: "white",
                 borderRadius: rem(12),
                 boxShadow: "0 4px 6px rgba(0,0,0,0.08)",
@@ -20,13 +25,19 @@ export default function JobFilter() {
             }}
         >
             <Group justify="space-between" gap="xl" wrap="nowrap">
-                {/* Search Input */}
                 <TextInput
                     placeholder="Search By Job Title, Role"
                     leftSection={<IconSearch size={18} />}
                     styles={{
                         input: { border: "none", boxShadow: "none" },
                     }}
+                    value={filters.search}
+                    onChange={(e) => {
+                        const { value } = e.currentTarget;
+                        console.log(value)
+                        setFilters((prev) => ({ ...prev, search: value || "" }))
+                    }
+                    }
                 />
 
                 <Divider orientation="vertical" />
@@ -37,17 +48,27 @@ export default function JobFilter() {
                     styles={{
                         input: { border: "none", boxShadow: "none" },
                     }}
+                    value={filters.location}
+                    onChange={(e) => {
+                        const { value } = e.currentTarget;
+                        setFilters((prev) => ({ ...prev, location: value || "" }))
+                    }
+                    }
                 />
 
                 <Divider orientation="vertical" />
 
                 <Select
                     placeholder="Job type"
-                    data={["Full-time", "Part-time", "Internship", "Contract"]}
+                    data={["Full-Time", "Part-Time", "Internship", "Contract"]}
                     leftSection={<IconBriefcase2 size={18} />}
                     styles={{
                         input: { border: "none", boxShadow: "none" },
                     }}
+                    value={filters.jobType}
+                    onChange={(value) =>
+                        setFilters((prev) => ({ ...prev, jobType: value || "" }))
+                    }
                 />
 
                 <Divider orientation="vertical" />
@@ -64,16 +85,18 @@ export default function JobFilter() {
                         <Text >
                             Salary Per Month
                         </Text>
-                        <Text  >
-                            ₹{salary[0]}k - ₹{salary[1]}k
+                        <Text >
+                            ₹{filters.salary[0]}LPA - ₹{filters.salary[1]}LPA
                         </Text>
                     </Flex>
                     <RangeSlider
-                        min={50}
-                        max={100}
+                        min={1}
+                        max={99}
                         step={5}
-                        value={salary}
-                        onChange={setSalary}
+                        value={filters.salary}
+                        onChange={(value) =>
+                            setFilters((prev) => ({ ...prev, salary: value as [number, number] }))
+                        }
                         label={null}
                         color="black"
                     />
